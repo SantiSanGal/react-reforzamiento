@@ -22,7 +22,7 @@ type LoginPayload = {
 }
 
 /*objetos planos que no se pueden expandir
-el tipo AuthAction puede ser de un tipo y otro de los definidos
+el tipo AuthAction puede ser de un tipo o solo otro de los definidos
 */
 type AuthAction = 
     | { type: "logout" }
