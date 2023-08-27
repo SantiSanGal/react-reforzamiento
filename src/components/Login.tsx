@@ -1,4 +1,3 @@
-import { type } from "os";
 import { useEffect, useReducer } from "react"
 
 interface AuthState {
@@ -15,8 +14,20 @@ const initialState: AuthState = {
     nombre: ""
 }
 
-//objetos planos que no se pueden expandir
-type AuthAction = { type: "logout" };
+
+/* este es el payload que esperaré cuando se dispare un evento de tipo login */
+type LoginPayload = {
+    username: string,
+    nombre: string
+}
+
+/*objetos planos que no se pueden expandir
+el tipo AuthAction puede ser de un tipo y otro de los definidos
+*/
+type AuthAction = 
+    | { type: "logout" }
+    //| { type: "login", payload: { username: string, nombre: string }} 
+    | { type: "login", payload: LoginPayload}
 
 /*reducer debe retornar un estado del mismo tipo que initialState
 por eso definimos la interface y lo utilizamos en el objeto initialState
@@ -31,7 +42,14 @@ const authReducer = ( state: AuthState, action: AuthAction ): AuthState => {
                 nombre: "",
                 username: "",
             }
-        
+        case 'login':
+            const { nombre, username } = action.payload;
+            return {
+                validando: false,
+                token: 'ABCASKDJFASHDFJASHDFKLJASDHFAS',
+                nombre,
+                username
+            }
         default:
             return state;
     }
@@ -39,15 +57,27 @@ const authReducer = ( state: AuthState, action: AuthAction ): AuthState => {
 
 export const Login = () => {
     //recibe la funcion y el estado que definimos primeramente con la interface
-    const [state, dispatch] = useReducer(authReducer, initialState);
+    const [{validando, token, nombre}, dispatch] = useReducer(authReducer, initialState);
 
     useEffect(() => {
         setTimeout(() => {
             dispatch({ type:'logout' });    
         }, 1500);
     }, [])
-    
-    if (state.validando) {
+
+    const login = () => {
+        dispatch({
+            type: 'login',
+            payload: {
+                nombre: "Santiago",
+                username: "Santiux"
+            }
+        });
+    };
+
+    const logout = () => dispatch({type: 'logout'});
+
+    if ( validando ) {
         return (
             <>
                 <h3>Login</h3>
@@ -62,21 +92,31 @@ export const Login = () => {
     <>
         <h3>Login</h3>
 
-        <div className="alert alert-danger">
-            No Autenticado.
-        </div>
+        {
+            ( token )
+            ?   <div className="alert alert-success">Autenticado como: { nombre }</div>
+            :   <div className="alert alert-danger">No Autenticado</div> 
 
-        <div className="alert alert-success">
-            Autenticado
-        </div>
+        }
 
-        <button className="btn btn-success">
-            Login
-        </button>
+        {
+            ( token )
+            ?   <button 
+                    className="btn btn-danger"
+                    onClick={ logout }
+                >
+                    Logout
+                </button>
+            :   <button 
+                    className="btn btn-success"
+                    onClick={ login }
+                >
+                    Login
+                </button>
+        }
+
         &nbsp; {/*caracter de espacio */}
-        <button className="btn btn-danger">
-            Logout
-        </button>
+
     </>
   )
 }
